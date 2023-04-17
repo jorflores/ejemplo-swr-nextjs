@@ -18,9 +18,6 @@ export default function Home({ initialData }) {
     key: `/api/data?page=${page}`,
   });
 
-  console.log(data);
-  console.log(`/api/data?page=${page}`);
-
   if (!data) {
     return <div>Loading...</div>;
   }
