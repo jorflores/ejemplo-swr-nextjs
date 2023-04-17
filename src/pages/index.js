@@ -1,5 +1,6 @@
 import Head from "next/head";
 import useSWR from "swr";
+import { useState } from "react";
 
 const fetcher = async (url) => {
   const res = await fetch(url);
@@ -11,12 +12,21 @@ const fetcher = async (url) => {
 };
 
 export default function Home({ initialData }) {
-  console.log(initialData);
-  const { data } = useSWR("/api/data", fetcher, { initialData });
+  const [page, setPage] = useState(1);
+  const { data } = useSWR(`/api/data?page=${page}`, fetcher, {
+    initialData,
+    key: `/api/data?page=${page}`,
+  });
+
+  console.log(data);
+  console.log(`/api/data?page=${page}`);
 
   if (!data) {
     return <div>Loading...</div>;
   }
+
+  const pageCount = data.total / data.per_page;
+
   return (
     <div>
       <Head>
@@ -25,6 +35,28 @@ export default function Home({ initialData }) {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
+      <h1> Users Profile</h1>
+      <br></br>
+
+      <div>
+        <button disabled={page === 1} onClick={() => setPage(page - 1)}>
+          Previous
+        </button>
+        {Array.from({ length: pageCount }).map((_, i) => (
+          <button
+            key={i}
+            disabled={page === i + 1}
+            onClick={() => setPage(i + 1)}
+          >
+            {i + 1}
+          </button>
+        ))}
+        <button disabled={page === pageCount} onClick={() => setPage(page + 1)}>
+          Next
+        </button>
+      </div>
+      <br></br>
+
       {data.data.map((item) => (
         <div key={item.id}>
           <p>
@@ -39,6 +71,6 @@ export default function Home({ initialData }) {
 }
 
 export async function getServerSideProps() {
-  const data = await fetcher("https://reqres.in/api/users");
+  const data = await fetcher("https://reqres.in/api/users?page=1");
   return { props: { initialData: data } };
 }
