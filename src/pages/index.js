@@ -16,6 +16,7 @@ export default function Home({ initialData }) {
   const { data } = useSWR(`/api/data?page=${page}`, fetcher, {
     initialData,
     key: `/api/data?page=${page}`,
+    /*refreshInterval: 10000,*/
   });
 
   if (!data) {
